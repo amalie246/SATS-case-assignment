@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import jsonData from "../data/response.json";
 import {UnBookedItems} from "../components/unBookedItems";
 import {Dialog} from "../components/dialog";
+import { Route, Routes, Link } from "react-router-dom";
 
 interface ZonedStartTime {
     timeZone: string;
@@ -32,7 +33,7 @@ export interface Booking {
     followingBookings: [];
 }
 
-interface ResponseData {
+export interface ResponseData {
     results: Booking[];
 }
 export function Application(){
@@ -56,42 +57,49 @@ export function Application(){
         setSelectedBooking(null); // Reset the selected booking
     };
 
-    return <>
-        <Dialog isOpen={isDialogOpen} onClose={closeDialog} booking={selectedBooking} />
-        <h2>Velkommen, atlet!</h2>
-        <div>
-            <h3>Dine kommende bookinger:</h3>
-            <div>
-                {bookedState.length > 0 ? (
-                    <ul>
-                        {bookedState.map(booking => (
-                            <li key={booking.id}>
-                                <div>
-                                    <p><strong>Navn: </strong>{booking.name}</p>
-                                    <p><strong>Instruktør: </strong>{booking.instructor}</p>
-                                    <p><strong>Dato: </strong>{booking.zonedStartTime.dateTime}</p>
-                                    <p><strong>Sted: </strong>{booking.clubName}</p>
-                                    <a href="#" onClick={(e) => {
-                                        e.preventDefault();
-                                        handleClickOnLink(booking);
-                                    }}>
-                                        [Se flere detaljer]
-                                    </a>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <li>Du har ingen bookinger fremover! Meld deg på en time nedenfor.</li>
-                )}
-            </div>
+    return (
+        <>
+            <Dialog isOpen={isDialogOpen} onClose={closeDialog} booking={selectedBooking} />
+            <Routes>
+                <Route path="/" element={
+                    <>
+                        <h2>Velkommen, atlet!</h2>
+                        <div>
+                            <h3>Dine kommende bookinger:</h3>
+                            <div>
+                                {bookedState.length > 0 ? (
+                                    <ul>
+                                        {bookedState.map(booking => (
+                                            <li key={booking.id}>
+                                                <div>
+                                                    <p><strong>Navn: </strong>{booking.name}</p>
+                                                    <p><strong>Instruktør: </strong>{booking.instructor}</p>
+                                                    <p><strong>Dato: </strong>{booking.zonedStartTime.dateTime}</p>
+                                                    <p><strong>Sted: </strong>{booking.clubName}</p>
+                                                    <a href="#" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handleClickOnLink(booking);
+                                                    }}>
+                                                        [Se flere detaljer]
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <li>Du har ingen bookinger fremover! Meld deg på en time nedenfor.</li>
+                                )}
+                            </div>
 
-            <br/>
-            <div>
-                <button>Ønsker du å booke flere?</button>
-            </div>
-            <UnBookedItems />
-
-        </div>
-    </>
+                            <br />
+                            <div>
+                                <Link to="/unbooked-items">Ønsker du å booke flere?</Link>
+                            </div>
+                        </div>
+                    </>
+                } />
+                <Route path="/unbooked-items" element={<UnBookedItems />} />
+            </Routes>
+        </>
+    );
 }
