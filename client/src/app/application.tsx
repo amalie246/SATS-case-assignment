@@ -1,5 +1,7 @@
 import React, {useState} from "react";
-import jsonData from "../data/response.json";;
+import jsonData from "../data/response.json";
+import {UnBookedItems} from "../components/unBookedItems";
+import {Dialog} from "../components/dialog";
 
 interface ZonedStartTime {
     timeZone: string;
@@ -11,14 +13,14 @@ interface MemberBookingInfo {
     bookingState: "Booked" | "NotBooked";
 }
 
-interface BookingInfo {
+export interface BookingInfo {
     capacity: number;
     bookedCount: number;
     waitingListCount: number;
     memberBookingInfo: MemberBookingInfo;
 }
 
-interface Booking {
+export interface Booking {
     id: string;
     durationInMinutes: number;
     instructor: string;
@@ -36,11 +38,26 @@ interface ResponseData {
 export function Application(){
     const [visibleBookings, setVisibleBookings] = useState<string[]>([]);
     const data: ResponseData = jsonData as ResponseData;
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
     const bookedState = data.results.filter(res =>
         res.bookingInfo.memberBookingInfo.bookingState === "Booked"
     );
 
+    const handleClickOnLink = (booking: Booking) => {
+        setSelectedBooking(booking);
+        setIsDialogOpen(true); // Set the dialog to open
+    };
+
+    const closeDialog = () => {
+        setIsDialogOpen(false); // Close the dialog
+        setSelectedBooking(null); // Reset the selected booking
+    };
+
     return <>
+        <Dialog isOpen={isDialogOpen} onClose={closeDialog} booking={selectedBooking} />
         <h2>Velkommen, atlet!</h2>
         <div>
             <h3>Dine kommende bookinger:</h3>
@@ -54,7 +71,12 @@ export function Application(){
                                     <p><strong>Instruktør: </strong>{booking.instructor}</p>
                                     <p><strong>Dato: </strong>{booking.zonedStartTime.dateTime}</p>
                                     <p><strong>Sted: </strong>{booking.clubName}</p>
-                                    <a href={"#"}>[Se flere detaljer]</a>
+                                    <a href="#" onClick={(e) => {
+                                        e.preventDefault();
+                                        handleClickOnLink(booking);
+                                    }}>
+                                        [Se flere detaljer]
+                                    </a>
                                 </div>
                             </li>
                         ))}
@@ -65,6 +87,11 @@ export function Application(){
             </div>
 
             <br/>
+            <div>
+                <button>Ønsker du å booke flere?</button>
+            </div>
+            <UnBookedItems />
+
         </div>
     </>
 }
