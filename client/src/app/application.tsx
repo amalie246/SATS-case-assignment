@@ -1,9 +1,42 @@
 import React, {useState} from "react";
-import jsonData from "../data/response.json";
-export function Application(){
-    const [visibleBookings, setVisibleBookings] = useState([]);
+import jsonData from "../data/response.json";;
 
-    const bookedState = jsonData.results.filter(res =>
+interface ZonedStartTime {
+    timeZone: string;
+    dateTime: string;
+}
+
+interface MemberBookingInfo {
+    participationId: string;
+    bookingState: "Booked" | "NotBooked";
+}
+
+interface BookingInfo {
+    capacity: number;
+    bookedCount: number;
+    waitingListCount: number;
+    memberBookingInfo: MemberBookingInfo;
+}
+
+interface Booking {
+    id: string;
+    durationInMinutes: number;
+    instructor: string;
+    clubName: string;
+    name: string;
+    bookingInfo: BookingInfo;
+    zonedStartTime: ZonedStartTime;
+    followingBookingCount: number;
+    followingBookings: [];
+}
+
+interface ResponseData {
+    results: Booking[];
+}
+export function Application(){
+    const [visibleBookings, setVisibleBookings] = useState<string[]>([]);
+    const data: ResponseData = jsonData as ResponseData;
+    const bookedState = data.results.filter(res =>
         res.bookingInfo.memberBookingInfo.bookingState === "Booked"
     );
 
@@ -15,7 +48,7 @@ export function Application(){
                 {bookedState.length > 0 ? (
                     <ul>
                         {bookedState.map(booking => (
-                            <li>
+                            <li key={booking.id}>
                                 <div>
                                     <p><strong>Navn: </strong>{booking.name}</p>
                                     <p><strong>Instruktør: </strong>{booking.instructor}</p>
